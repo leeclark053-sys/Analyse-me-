@@ -1,4 +1,4 @@
-const CACHE_NAME = "mood-early-warning-v1";
+const CACHE_NAME = "analyse-me-warm-v1";
 const ASSETS = ["./", "./index.html", "./style.css", "./app.js", "./manifest.json"];
 
 self.addEventListener("install", event => {

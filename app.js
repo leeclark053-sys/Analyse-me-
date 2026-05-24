@@ -1,233 +1,170 @@
-const CHECKS = [
-  { id: "sleep_late_frag", label: "Sleep starts later or becomes fragmented", weight: 3, phase: "14–10 days", confidence: "85–90%" },
-  { id: "wired_tired", label: "Wired but tired / exhausted", weight: 3, phase: "14–10 days", confidence: "80–90%" },
-  { id: "analysing_fixation", label: "Increased analysing / researching / fixation", weight: 2, phase: "14–10 days", confidence: "75–85%" },
-  { id: "mild_agitation", label: "Mild internal agitation", weight: 2, phase: "14–10 days", confidence: "70–80%" },
-
-  { id: "fragmented_sleep_clear", label: "Sleep clearly fragmented", weight: 4, phase: "10–7 days", confidence: "90–95%" },
-  { id: "overstim_exhausted", label: "Brain overstimulated despite exhaustion", weight: 4, phase: "10–7 days", confidence: "90%" },
-  { id: "racing_switching", label: "Racing / switching thoughts", weight: 4, phase: "10–7 days", confidence: "85–90%" },
-  { id: "fixation_harder", label: "Fixation harder to stop", weight: 3, phase: "10–7 days", confidence: "85%" },
-  { id: "physical_agitation", label: "Physical agitation: feet / jaw / legs", weight: 3, phase: "10–7 days", confidence: "80–85%" },
-  { id: "doom_dread", label: "Doom / dread feeling increases", weight: 2, phase: "10–7 days", confidence: "80%" },
-
-  { id: "severe_insomnia", label: "Severe insomnia or very broken sleep", weight: 5, phase: "7–3 days", confidence: "95%" },
-  { id: "depression_agitation", label: "Depression + agitation together", weight: 5, phase: "7–3 days", confidence: "95%" },
-  { id: "thought_loops", label: "Thought loops / rapid switching", weight: 4, phase: "7–3 days", confidence: "90–95%" },
-  { id: "compulsive_overfocus", label: "Compulsive overfocus", weight: 3, phase: "7–3 days", confidence: "85–90%" },
-  { id: "exhausted_driven", label: "Exhausted but internally driven", weight: 5, phase: "7–3 days", confidence: "90–95%" },
-
-  { id: "almost_no_sleep", label: "Very broken sleep / almost no sleep", weight: 6, phase: "3–1 days", confidence: "95%" },
-  { id: "severe_inner_agitation", label: "Severe inner agitation", weight: 6, phase: "3–1 days", confidence: "95%" },
-  { id: "marked_racing", label: "Marked racing / switching thoughts", weight: 6, phase: "3–1 days", confidence: "95%" },
-  { id: "unable_settle", label: "Unable to mentally settle", weight: 6, phase: "3–1 days", confidence: "95%" },
-  { id: "driven_peak", label: "Exhausted but driven", weight: 6, phase: "3–1 days", confidence: "95%" },
-
-  { id: "unsafe_si", label: "Safety concern: suicidal thoughts feel unsafe, plans/intent, confusion, psychosis, or family cannot keep me safe", weight: 99, phase: "urgent", confidence: "crisis marker" }
+const QUESTIONS = [
+  { id: "almost_no_sleep", group: "Sleep", text: "Have you had very broken sleep or almost no sleep?", help: "This is one of the strongest early signs in your diary pattern.", weight: 6 },
+  { id: "severe_insomnia", group: "Sleep", text: "Has sleep felt severely disrupted or impossible to settle into?", help: "Tick this if sleep is much worse than your usual bad night.", weight: 5 },
+  { id: "depression_agitation", group: "Mood and energy", text: "Do you feel low or depressed but also agitated inside?", help: "This mixed feeling is important: low mood plus activation at the same time.", weight: 6 },
+  { id: "exhausted_driven", group: "Mood and energy", text: "Do you feel exhausted but still internally driven?", help: "For example, tired but unable to fully stop, settle, or switch off.", weight: 5 },
+  { id: "severe_inner_agitation", group: "Body signs", text: "Is the inner agitation strong today?", help: "This can feel like a restless charge in your body or nervous system.", weight: 5 },
+  { id: "racing_switching", group: "Thoughts", text: "Are your thoughts racing or switching from thing to thing?", help: "Tick this if your thoughts keep jumping, looping, or speeding up.", weight: 5 },
+  { id: "unable_settle", group: "Thoughts", text: "Are you struggling to mentally settle?", help: "For example, feeling unable to rest even when you want to.", weight: 5 },
+  { id: "wired_tired", group: "Mood and energy", text: "Have you felt wired but exhausted?", help: "Your body feels tired but your mind or nervous system feels switched on.", weight: 4 },
+  { id: "fragmented_sleep", group: "Sleep", text: "Has your sleep become clearly fragmented?", help: "Tick this if sleep has become broken, delayed, or lighter than normal.", weight: 4 },
+  { id: "fixation", group: "Thoughts", text: "Have you been more fixated, analysing, researching, or checking?", help: "This includes getting stuck trying to understand, solve, or check things repeatedly.", weight: 3 },
+  { id: "physical_agitation", group: "Body signs", text: "Have you noticed physical agitation?", help: "For example, feet rubbing, jaw tension, leg movement, toe clenching or restlessness.", weight: 3 },
+  { id: "doom_dread", group: "Anxiety signs", text: "Has the doom or dread feeling increased?", help: "Tick this if the feeling of threat, fear, or something bad happening is stronger.", weight: 3 },
+  { id: "overstimulation", group: "Triggers", text: "Have you been overstimulated by researching, screens, noise, or stress?", help: "This can lower your threshold even if it is not the main cause.", weight: 2 },
+  { id: "stress_conflict", group: "Triggers", text: "Has there been emotional stress, conflict, or a major worry?", help: "Tick this if stress has been building or there has been a significant emotional trigger.", weight: 2 },
+  { id: "isolation_rumination", group: "Triggers", text: "Have you been isolated and ruminating more than usual?", help: "This includes withdrawing, staying in bed, ignoring people, or looping on worries.", weight: 2 },
+  { id: "med_change", group: "Triggers", text: "Has there been a recent medication change or withdrawal effect?", help: "Tick this if a dose change, stopping, or withdrawal symptoms may be affecting you.", weight: 3 },
+  { id: "safety", group: "Safety", text: "Do suicidal thoughts feel unsafe, or are there plans, intent, confusion, psychosis, or family unable to keep you safe?", help: "If yes, this needs urgent real-world support, not just app tracking.", weight: 100 }
 ];
 
-const TIMELINE = [
-  {
-    title: "14–10 days before — Early warning",
-    items: [
-      "Sleep starts later / fragmented — 85–90%",
-      "Wired but tired — 80–90%",
-      "Increased analysing / researching / fixation — 75–85%",
-      "Mild internal agitation — 70–80%"
-    ],
-    note: "Something feels off, but it may still look like anxiety or stress."
-  },
-  {
-    title: "10–7 days before — Activation",
-    items: [
-      "Sleep clearly fragmented — 90–95%",
-      "Brain overstimulated despite exhaustion — 90%",
-      "Racing / switching thoughts — 85–90%",
-      "Fixation harder to stop — 85%",
-      "Physical agitation: feet / jaw / legs — 80–85%",
-      "Doom / dread increases — 80%"
-    ],
-    note: "This is where it starts looking less like ordinary anxiety and more like episode build-up."
-  },
-  {
-    title: "7–3 days before — Mixed build-up",
-    items: [
-      "Severe insomnia / very broken sleep — 95%",
-      "Depression + agitation together — 95%",
-      "Thought loops / rapid switching — 90–95%",
-      "Exhausted but internally driven — 90–95%",
-      "Compulsive overfocus — 85–90%"
-    ],
-    note: "Major threshold point: low mood plus activation together."
-  },
-  {
-    title: "3–1 days before — Peak build-up",
-    items: [
-      "Very broken sleep / almost no sleep — 95%",
-      "Severe inner agitation — 95%",
-      "Marked racing / switching thoughts — 95%",
-      "Unable to mentally settle — 95%",
-      "Exhausted but driven — 95%"
-    ],
-    note: "This looks like active mixed-state build-up rather than just warning signs."
-  }
+const GUIDE = [
+  { title: "Day -14 to -10: early changes", text: "Sleep may start shifting, you may feel wired but tired, and analysing or fixation can increase." },
+  { title: "Day -10 to -7: activation builds", text: "Sleep becomes more broken, thoughts may race or switch, and physical agitation can start to show." },
+  { title: "Day -7 to -3: mixed build-up", text: "Low mood and agitation may appear together. Thought loops, overfocus and the exhausted-but-driven feeling become more noticeable." },
+  { title: "Day -3 to -1: peak build-up", text: "Sleep may collapse further, agitation can become severe, and it may feel hard to mentally settle." }
 ];
 
-const STORAGE_KEY = "moodEarlyWarningEntriesV1";
+const STORAGE_KEY = "analyseMeWarmEntriesV1";
+let current = 0;
+let answers = {};
+let startedAt = null;
 
-function todayISO() {
+function qs(id) { return document.getElementById(id); }
+
+function todayLabel() {
   const d = new Date();
-  const offset = d.getTimezoneOffset();
-  const local = new Date(d.getTime() - offset * 60000);
-  return local.toISOString().slice(0, 10);
+  return d.toLocaleString("en-GB", { day: "2-digit", month: "short", hour: "2-digit", minute: "2-digit" });
 }
 
-function init() {
-  document.getElementById("checkDate").value = todayISO();
-  renderChecklist();
-  renderTimeline();
-  renderHistory();
-  document.getElementById("calculateBtn").addEventListener("click", calculateAndShow);
-  document.getElementById("saveBtn").addEventListener("click", saveToday);
-  document.getElementById("resetBtn").addEventListener("click", clearTicks);
-  document.getElementById("exportBtn").addEventListener("click", exportCSV);
-  document.getElementById("deleteBtn").addEventListener("click", deleteAll);
+function showScreen(id) {
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  qs(id).classList.add("active");
+  document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.screen === id));
+  if (id === "guideScreen") renderGuide();
+  if (id === "historyScreen") renderHistory();
 }
 
-function renderChecklist() {
-  const wrap = document.getElementById("checklist");
-  wrap.innerHTML = "";
-  CHECKS.forEach(item => {
-    const row = document.createElement("label");
-    row.className = "check-item";
-    row.innerHTML = `
-      <input type="checkbox" data-id="${item.id}">
-      <span>${item.label}</span>
-      <span class="weight">${item.phase} • ${item.confidence}</span>
-    `;
-    wrap.appendChild(row);
-  });
+function startCheck() {
+  current = 0;
+  answers = {};
+  startedAt = new Date();
+  qs("dateTimePill").textContent = startedAt.toLocaleString("en-GB");
+  renderQuestion();
+  showScreen("questionScreen");
 }
 
-function renderTimeline() {
-  const wrap = document.getElementById("timeline");
-  wrap.innerHTML = "";
-  TIMELINE.forEach(block => {
-    const el = document.createElement("div");
-    el.className = "time-block";
-    el.innerHTML = `
-      <h3>${block.title}</h3>
-      <p class="muted">${block.note}</p>
-      <ul>${block.items.map(i => `<li>${i}</li>`).join("")}</ul>
-    `;
-    wrap.appendChild(el);
-  });
+function renderQuestion() {
+  const q = QUESTIONS[current];
+  qs("progressLabel").textContent = `Question ${current + 1} of ${QUESTIONS.length}`;
+  qs("progressBar").style.width = `${((current + 1) / QUESTIONS.length) * 100}%`;
+  qs("questionGroup").textContent = q.group;
+  qs("questionText").textContent = q.text;
+  qs("questionHelp").textContent = q.help;
+  qs("answerTick").checked = !!answers[q.id];
+  qs("backBtn").style.visibility = current === 0 ? "hidden" : "visible";
+  qs("nextBtn").textContent = current === QUESTIONS.length - 1 ? "See today’s insight" : "Next";
 }
 
-function getSelected() {
-  return [...document.querySelectorAll("#checklist input:checked")].map(i => i.dataset.id);
+function nextQuestion() {
+  const q = QUESTIONS[current];
+  answers[q.id] = qs("answerTick").checked;
+  if (current < QUESTIONS.length - 1) {
+    current++;
+    renderQuestion();
+  } else {
+    renderInsight();
+    showScreen("insightScreen");
+  }
 }
 
-function calculateRisk(selected = getSelected()) {
-  const selectedItems = CHECKS.filter(c => selected.includes(c.id));
-  if (selected.includes("unsafe_si")) {
+function backQuestion() {
+  const q = QUESTIONS[current];
+  answers[q.id] = qs("answerTick").checked;
+  if (current > 0) {
+    current--;
+    renderQuestion();
+  }
+}
+
+function selectedItems() {
+  return QUESTIONS.filter(q => answers[q.id]);
+}
+
+function calculate() {
+  const selected = selectedItems();
+  const score = selected.reduce((sum, q) => sum + q.weight, 0);
+  const hasSafety = answers.safety;
+  const hasSleep = ["almost_no_sleep", "severe_insomnia", "fragmented_sleep"].some(id => answers[id]);
+  const hasActivation = ["depression_agitation", "exhausted_driven", "severe_inner_agitation", "racing_switching", "unable_settle", "wired_tired"].some(id => answers[id]);
+  const hasMixed = ["depression_agitation", "exhausted_driven", "almost_no_sleep", "severe_inner_agitation"].filter(id => answers[id]).length >= 2;
+
+  if (hasSafety) {
     return {
-      level: "CRISIS",
-      score: 99,
-      css: "risk-purple",
-      title: "Urgent safety marker selected",
-      advice: [
-        "Do not manage this alone.",
-        "Contact crisis team, NHS 111, A&E, or 999 depending on urgency.",
-        "Involve Lisa/family now if available."
-      ],
-      medPrompt: "Follow your written clinical crisis plan. This app cannot advise medication in a crisis."
+      stage: "urgent support needed",
+      title: "This sounds like a moment for extra support.",
+      text: "I know this may feel frightening, but you do not need to handle it alone. Please involve Lisa or someone nearby and contact your crisis team, NHS 111, A&E or 999 depending on urgency.",
+      advice: ["Stay with someone if possible.", "Move away from anything you could use to harm yourself.", "Use crisis support now rather than waiting.", "Keep the next step very simple: tell one person."],
+      med: "Follow your written crisis plan. This app cannot advise medication in an emergency.",
+      score
     };
   }
 
-  const score = selectedItems.reduce((sum, item) => sum + item.weight, 0);
-  const hasSleep = selected.some(id => ["sleep_late_frag","fragmented_sleep_clear","severe_insomnia","almost_no_sleep"].includes(id));
-  const hasActivation = selected.some(id => ["wired_tired","overstim_exhausted","racing_switching","marked_racing","physical_agitation","severe_inner_agitation","unable_settle"].includes(id));
-  const hasMixed = selected.includes("depression_agitation") || selected.includes("exhausted_driven") || selected.includes("driven_peak");
-
-  if (score >= 24 || (hasSleep && hasActivation && hasMixed)) {
+  if (score >= 28 || (hasSleep && hasActivation && hasMixed)) {
     return {
-      level: "RED",
-      score,
-      css: "risk-red",
-      title: "High risk pattern",
-      advice: [
-        "Your check-in matches the stronger 7–3 day / 3–1 day build-up pattern.",
-        "Reduce stimulation, involve Lisa/family, and consider contacting the clinical team if this continues or worsens."
-      ],
-      medPrompt: "Medication prompt: only follow the rescue-medication plan Dan has written/agreed. This app should not decide dose."
+      stage: "mixed build-up or episode pattern",
+      title: "Your answers suggest a mixed build-up pattern may be present.",
+      text: "This does not mean anything bad is inevitable. It means the pattern looks worth taking seriously today, especially around sleep, agitation and racing thoughts.",
+      advice: ["Lower stimulation for the rest of today.", "Pause symptom researching and repeated checking.", "Keep light, noise and screen use gentle.", "Let Lisa know what the app has noticed.", "Prioritise sleep protection and routine."],
+      med: "If your agreed rescue-medication guidance applies, this would be a sensible time to follow that plan or contact your clinical team for advice.",
+      score
     };
   }
 
-  if (score >= 12 || (hasSleep && hasActivation)) {
+  if (score >= 14 || (hasSleep && hasActivation)) {
     return {
-      level: "AMBER",
-      score,
-      css: "risk-amber",
-      title: "Early activation pattern",
-      advice: [
-        "Your check-in matches the 14–7 day early warning/activation pattern.",
-        "Prioritise sleep protection, reduce researching/overstimulation, and watch for escalation tomorrow."
-      ],
-      medPrompt: "Medication prompt: if Dan has agreed rescue medication after one poor night of sleep, check that written plan."
+      stage: "early build-up signs",
+      title: "There are some early build-up signs today.",
+      text: "This looks like a good time to simplify the evening, reduce stimulation, and keep an eye on sleep. You have spotted it early, which is useful.",
+      advice: ["Make tonight quieter and more predictable.", "Avoid big decisions if possible.", "Reduce scrolling/research loops.", "Check in again tomorrow.", "Tell Lisa if symptoms increase."],
+      med: "If your written plan says to use rescue medication after one poor night of sleep, check that plan and follow Dan’s guidance.",
+      score
     };
   }
 
   return {
-    level: "GREEN",
-    score,
-    css: "risk-low",
-    title: "Lower risk today",
-    advice: [
-      "No strong build-up pattern from today’s ticks.",
-      "Keep routine steady and check again tomorrow."
-    ],
-    medPrompt: "No medication prompt from the app."
+    stage: "settled or lower-signal day",
+    title: "Today looks lower signal.",
+    text: "Nothing in this check-in strongly suggests the usual build-up pattern. Keep the day steady and check again tomorrow.",
+    advice: ["Keep routine gentle and steady.", "Do something low-pressure.", "Protect sleep tonight.", "Avoid over-analysing a single day."],
+    med: "No rescue-plan prompt from today’s answers.",
+    score
   };
 }
 
-function calculateAndShow() {
-  const risk = calculateRisk();
-  showResult(risk);
-  return risk;
+function renderInsight() {
+  const r = calculate();
+  qs("insightTitle").textContent = r.title;
+  qs("insightText").textContent = r.text;
+  qs("signalCount").textContent = selectedItems().length;
+  qs("adviceList").innerHTML = r.advice.map(a => `<li>${a}</li>`).join("");
+  qs("medPrompt").textContent = r.med;
 }
 
-function showResult(risk) {
-  const box = document.getElementById("resultBox");
-  const badge = document.getElementById("riskBadge");
-  badge.className = "risk-badge " + risk.css;
-  badge.textContent = `${risk.level} • score ${risk.score}`;
-  box.innerHTML = `
-    <div class="result-title">${risk.title}</div>
-    <p><strong>Risk:</strong> ${risk.level} | <strong>Score:</strong> ${risk.score}</p>
-    <ul>${risk.advice.map(a => `<li>${a}</li>`).join("")}</ul>
-    <p><strong>${risk.medPrompt}</strong></p>
-  `;
-}
-
-function saveToday() {
-  const selected = getSelected();
-  const risk = calculateRisk(selected);
-  showResult(risk);
-
+function saveCheck() {
+  const r = calculate();
   const entry = {
-    date: document.getElementById("checkDate").value || todayISO(),
-    selected,
-    riskLevel: risk.level,
-    score: risk.score,
-    savedAt: new Date().toISOString()
+    startedAt: (startedAt || new Date()).toISOString(),
+    savedAt: new Date().toISOString(),
+    stage: r.stage,
+    signals: selectedItems().map(q => q.id),
+    score: r.score
   };
-
-  const entries = loadEntries().filter(e => e.date !== entry.date);
-  entries.push(entry);
-  entries.sort((a,b) => b.date.localeCompare(a.date));
+  const entries = loadEntries();
+  entries.unshift(entry);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
   renderHistory();
+  alert("Check-in saved.");
 }
 
 function loadEntries() {
@@ -235,26 +172,40 @@ function loadEntries() {
   catch { return []; }
 }
 
-function renderHistory() {
-  const wrap = document.getElementById("history");
-  const entries = loadEntries();
-  if (!entries.length) {
-    wrap.innerHTML = `<p class="muted">No saved check-ins yet.</p>`;
-    return;
-  }
-  wrap.innerHTML = entries.slice(0, 30).map(e => `
-    <div class="history-item">
-      <strong>${e.date}</strong> — ${e.riskLevel} / score ${e.score}<br>
-      <span class="muted">${e.selected.length} items ticked</span>
+function renderGuide() {
+  qs("guideList").innerHTML = GUIDE.map(g => `
+    <div class="guide-block">
+      <h3>${g.title}</h3>
+      <p>${g.text}</p>
     </div>
   `).join("");
 }
 
-function clearTicks() {
-  document.querySelectorAll("#checklist input").forEach(i => i.checked = false);
-  document.getElementById("riskBadge").className = "risk-badge";
-  document.getElementById("riskBadge").textContent = "Not checked";
-  document.getElementById("resultBox").textContent = "Complete today’s check-in.";
+function renderHistory() {
+  const entries = loadEntries();
+  if (!entries.length) {
+    qs("historyList").innerHTML = `<div class="history-item"><p>No saved check-ins yet.</p></div>`;
+    return;
+  }
+  qs("historyList").innerHTML = entries.map(e => {
+    const date = new Date(e.startedAt).toLocaleString("en-GB");
+    return `<div class="history-item"><strong>${date}</strong><p>${e.stage} • ${e.signals.length} signals noticed</p></div>`;
+  }).join("");
+}
+
+function exportCSV() {
+  const entries = loadEntries();
+  if (!entries.length) return alert("No saved check-ins to export.");
+  const rows = [["startedAt","stage","signals","score","savedAt"]];
+  entries.forEach(e => rows.push([e.startedAt, e.stage, e.signals.join("|"), e.score, e.savedAt]));
+  const csv = rows.map(r => r.map(v => `"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = "analyse-me-checkins.csv";
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 function deleteAll() {
@@ -263,25 +214,22 @@ function deleteAll() {
   renderHistory();
 }
 
-function exportCSV() {
-  const entries = loadEntries();
-  if (!entries.length) return alert("No saved entries to export.");
-  const rows = [["date","riskLevel","score","selectedItems","savedAt"]];
-  entries.forEach(e => rows.push([
-    e.date,
-    e.riskLevel,
-    e.score,
-    e.selected.join("|"),
-    e.savedAt
-  ]));
-  const csv = rows.map(r => r.map(v => `"${String(v).replaceAll('"','""')}"`).join(",")).join("\n");
-  const blob = new Blob([csv], {type:"text/csv"});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement("a");
-  a.href = url;
-  a.download = "mood-checkins.csv";
-  a.click();
-  URL.revokeObjectURL(url);
+function init() {
+  qs("dateTimePill").textContent = todayLabel();
+  qs("startBtn").addEventListener("click", startCheck);
+  qs("nextBtn").addEventListener("click", nextQuestion);
+  qs("backBtn").addEventListener("click", backQuestion);
+  qs("saveBtn").addEventListener("click", saveCheck);
+  qs("newCheckBtn").addEventListener("click", startCheck);
+  qs("exportBtn").addEventListener("click", exportCSV);
+  qs("deleteBtn").addEventListener("click", deleteAll);
+
+  document.querySelectorAll(".nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => showScreen(btn.dataset.screen));
+  });
+
+  renderGuide();
+  renderHistory();
 }
 
 if ("serviceWorker" in navigator) {

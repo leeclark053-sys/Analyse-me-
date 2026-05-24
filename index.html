@@ -2,75 +2,118 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Analyse Me!</title>
-  <link rel="manifest" href="manifest.json"/>
-  <link rel="stylesheet" href="style.css"/>
-  <meta name="theme-color" content="#0f172a"/>
+  <link rel="manifest" href="manifest.json" />
+  <link rel="stylesheet" href="style.css" />
+  <meta name="theme-color" content="#fffaf5" />
 </head>
 <body>
-  <header class="app-header">
-    <div>
-      <h1>Analyse Me!</h1>
-      <p>Daily check-in for mixed-state / hypomania build-up patterns</p>
-    </div>
-    <div id="riskBadge" class="risk-badge">Not checked</div>
-  </header>
-
-  <main>
-    <section class="card">
-      <h2>Today’s check-in</h2>
-      <p class="muted">Tick what has been present today or since yesterday.</p>
-
-      <div class="date-row">
-        <label for="checkDate">Date</label>
-        <input id="checkDate" type="date" />
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <h1>Analyse Me!</h1>
+        <p class="subtitle">A gentle daily check-in to help notice early changes before they become overwhelming.</p>
       </div>
+      <div class="soft-icon">☁</div>
+    </header>
 
-      <div id="checklist" class="checklist"></div>
+    <main>
+      <section id="homeScreen" class="screen active">
+        <div class="card hero-card">
+          <h2>Today’s check-in</h2>
+          <p>Your check-in is saved with the date and time so you can look back and spot patterns over time.</p>
+          <div class="time-pill" id="dateTimePill">Not started yet</div>
+          <button class="primary" id="startBtn">Begin check-in</button>
+        </div>
 
-      <div class="button-row">
-        <button id="calculateBtn">Calculate risk</button>
-        <button id="saveBtn" class="secondary">Save today</button>
-        <button id="resetBtn" class="ghost">Clear ticks</button>
-      </div>
-    </section>
+        <div class="card soft-card">
+          <h2>Today’s feeling</h2>
+          <div class="feeling-row">
+            <div class="large-icon">♡</div>
+            <p>You haven’t checked in yet today. Start with a few simple questions about sleep, energy, agitation and triggers.</p>
+          </div>
+        </div>
+      </section>
 
-    <section class="card result-card">
-      <h2>Risk result</h2>
-      <div id="resultBox" class="result-box">
-        Complete today’s check-in.
-      </div>
-    </section>
+      <section id="questionScreen" class="screen">
+        <div class="progress-wrap">
+          <div class="progress-label" id="progressLabel">Question 1 of 1</div>
+          <div class="progress-track"><div id="progressBar"></div></div>
+        </div>
 
-    <section class="card">
-      <h2>14-day pattern view</h2>
-      <div id="timeline" class="timeline"></div>
-    </section>
+        <div class="card question-card">
+          <p class="eyebrow" id="questionGroup">Check-in</p>
+          <h2 id="questionText">Question</h2>
+          <p id="questionHelp" class="help-text"></p>
 
-    <section class="card">
-      <h2>Saved check-ins</h2>
-      <p class="muted">Stored only in this browser/device.</p>
-      <div class="button-row">
-        <button id="exportBtn" class="secondary">Export CSV</button>
-        <button id="deleteBtn" class="danger">Delete all saved data</button>
-      </div>
-      <div id="history"></div>
-    </section>
+          <label class="tick-row">
+            <input type="checkbox" id="answerTick" />
+            <span>Yes, this applies to me</span>
+          </label>
 
-    <section class="card safety">
-      <h2>Safety note</h2>
-      <p>
-        This app does not diagnose, prescribe, or replace your clinician’s advice.
-        Medication prompts should only reflect the written plan agreed with Dan / your clinical team.
-      </p>
-      <p>
-        If suicidal thoughts become unsafe, you feel unable to resist them, you develop plans/intent,
-        severe agitation, confusion, psychosis, or family cannot keep you safe: contact your crisis team,
-        NHS 111, A&E, or 999 depending on urgency.
-      </p>
-    </section>
-  </main>
+          <div class="button-row">
+            <button class="secondary" id="backBtn">Back</button>
+            <button class="primary" id="nextBtn">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <section id="insightScreen" class="screen">
+        <div class="card insight-card">
+          <div class="insight-icon">♡</div>
+          <h2 id="insightTitle">Today’s insight</h2>
+          <p id="insightText"></p>
+          <div class="summary-total">
+            <span id="signalCount">0</span>
+            <small>signals noticed today</small>
+          </div>
+        </div>
+
+        <div class="card soft-card">
+          <h2>Gentle reminders</h2>
+          <ul id="adviceList" class="advice-list"></ul>
+        </div>
+
+        <div class="card soft-card">
+          <h2>Rescue-plan reminder</h2>
+          <p id="medPrompt"></p>
+        </div>
+
+        <div class="button-row">
+          <button class="secondary" id="saveBtn">Save check-in</button>
+          <button class="primary" id="newCheckBtn">New check-in</button>
+        </div>
+      </section>
+
+      <section id="guideScreen" class="screen">
+        <div class="card">
+          <h2>14-day guide</h2>
+          <p class="help-text">A general map of changes to look out for before an episode builds. It is a guide, not a diagnosis.</p>
+        </div>
+        <div id="guideList"></div>
+      </section>
+
+      <section id="historyScreen" class="screen">
+        <div class="card">
+          <h2>Saved check-ins</h2>
+          <p class="help-text">Saved only on this device/browser.</p>
+          <div class="button-row">
+            <button class="secondary" id="exportBtn">Export CSV</button>
+            <button class="danger" id="deleteBtn">Delete all</button>
+          </div>
+        </div>
+        <div id="historyList"></div>
+      </section>
+    </main>
+
+    <nav class="bottom-nav">
+      <button data-screen="homeScreen" class="nav-btn active">☀<span>Check in</span></button>
+      <button data-screen="insightScreen" class="nav-btn">♡<span>Insight</span></button>
+      <button data-screen="guideScreen" class="nav-btn">◌<span>Guide</span></button>
+      <button data-screen="historyScreen" class="nav-btn">⌁<span>History</span></button>
+    </nav>
+  </div>
 
   <script src="app.js"></script>
 </body>

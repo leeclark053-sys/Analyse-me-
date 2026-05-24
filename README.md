@@ -1,50 +1,33 @@
 # Analyse Me!
 
-A static GitHub Pages app for daily check-ins using a 14-day pre-episode pattern.
+A warm, static GitHub Pages app for daily check-ins.
 
-## What it does
+## Features
 
-- Daily tick-box symptom check-in
-- Risk banding: GREEN / AMBER / RED / CRISIS
-- Shows a 14-day pattern timeline
-- Saves entries locally in the browser only
-- Exports saved check-ins as CSV
-- Works as a simple PWA/offline app after first load
+- One question at a time
+- Date and time recorded automatically
+- Main symptoms and triggers asked in priority order
+- Calming insight page instead of harsh risk terminology
+- Rescue-plan reminder based on agreed clinical guidance
+- 14-day guide without percentages
+- Local-only saved check-ins
+- CSV export
+- PWA/offline support after first load
 
-## Important safety note
+## Publish on GitHub Pages
 
-This app does not diagnose, prescribe, or replace clinical advice.
+1. Create a new repository called `analyse-me`
+2. Upload all files in this zip
+3. Go to Settings → Pages
+4. Source: Deploy from branch
+5. Branch: main
+6. Folder: /root
+7. Save
 
-Medication prompts are deliberately worded as reminders to follow a written plan agreed with the clinical team. The app should not decide medication dose.
+Your app will be available at:
 
-## How to publish on GitHub Pages
+`https://YOURUSERNAME.github.io/analyse-me/`
 
-1. Create a new GitHub repository, e.g. `analyse-me`
-2. Upload these files:
-   - `index.html`
-   - `style.css`
-   - `app.js`
-   - `manifest.json`
-   - `sw.js`
-   - `README.md`
-3. Go to **Settings → Pages**
-4. Under **Build and deployment**, choose:
-   - Source: `Deploy from a branch`
-   - Branch: `main`
-   - Folder: `/root`
-5. Save.
-6. Your app will appear at:
-   `https://YOURUSERNAME.github.io/analyse-me/`
+## Safety
 
-## How to adjust risk scoring
-
-Open `app.js`.
-
-Each check item has a `weight`. Higher weights increase the risk score.
-
-The current scoring is intentionally cautious:
-- AMBER: score >= 12 or sleep + activation
-- RED: score >= 24 or sleep + activation + mixed features
-- CRISIS: safety marker selected
-
-Ask your clinician to review the thresholds and wording.
+This app does not diagnose, prescribe, or replace clinical advice. It is a personal tracking tool.
